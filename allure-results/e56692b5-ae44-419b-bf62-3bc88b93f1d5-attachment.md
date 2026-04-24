@@ -1,0 +1,80 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: booking\01create_booking.spec.ts >> CreateBooking — POST /booking >> should create a booking without additionalneeds field
+- Location: tests\booking\01create_booking.spec.ts:33:3
+
+# Error details
+
+```
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "2026-04-ddd"
+Received: "0NaN-aN-aN"
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect } from "@playwright/test";
+  2  | import { createBooking } from "../../utils/api-helpers.js";
+  3  | 
+  4  | import { buildBookingPayload } from "../../utils/payload-builders.js";
+  5  | import type { CreateBookingResponse } from "../../utils/types.js";
+  6  | 
+  7  | test.describe("CreateBooking — POST /booking", () => {
+  8  |   test("should create a booking and return it with an ID", async ({ request }) => {
+  9  |     // Arrange — build a random booking payload
+  10 |     const payload = buildBookingPayload();
+  11 |     //Send request to server
+  12 |     const response = await createBooking(request, payload);
+  13 |     //Assertion
+  14 |     expect(response.status()).toBe(200);
+  15 |     expect(response.ok()).toBeTruthy();
+  16 | 
+  17 |     const responseBody: CreateBookingResponse = await response.json();
+  18 | 
+  19 |     // The response must include a new numeric booking ID
+  20 |     expect(responseBody).toHaveProperty("bookingid");
+  21 |     expect(typeof responseBody.bookingid).toBe("number");
+  22 | 
+  23 |     // The returned booking should match what we sent
+  24 |     expect(responseBody.booking.firstname).toBe(payload.firstname);
+  25 |     expect(responseBody.booking.lastname).toBe(payload.lastname);
+  26 |     expect(responseBody.booking.totalprice).toBe(payload.totalprice);
+  27 |     expect(responseBody.booking.depositpaid).toBe(payload.depositpaid);
+  28 |     expect(responseBody.booking.bookingdates.checkin).toBe(payload.bookingdates.checkin);
+  29 |     expect(responseBody.booking.bookingdates.checkout).toBe(payload.bookingdates.checkout);
+  30 |     expect(responseBody.booking.additionalneeds).toBe(payload.additionalneeds);
+  31 |   });
+  32 | 
+  33 |   test("should create a booking without additionalneeds field", async ({request}) => {
+  34 |     // Arrange — omit the optional field
+  35 |     const payload = buildBookingPayload();
+  36 |     delete payload.additionalneeds;
+  37 | 
+  38 |     //Send request to server
+  39 |     const response = await createBooking(request, payload);
+  40 | 
+  41 |     //Assertion
+  42 |     expect(response.status()).toBe(200);
+  43 |     expect(response.ok()).toBeTruthy();
+  44 | 
+  45 |     const responseBody: CreateBookingResponse = await response.json();
+  46 |     expect(responseBody).toHaveProperty("bookingid");
+  47 |     expect(responseBody.booking.firstname).toBe(payload.firstname);
+  48 |     expect(responseBody.booking.lastname).toBe(payload.lastname);
+  49 |     expect(responseBody.booking.totalprice).toBe(payload.totalprice);
+  50 |     expect(responseBody.booking.depositpaid).toBe(payload.depositpaid);
+  51 |     expect(responseBody.booking.bookingdates.checkin).toBe(payload.bookingdates.checkin);
+> 52 |     expect(responseBody.booking.bookingdates.checkout).toBe(payload.bookingdates.checkout);
+     |                                                        ^ Error: expect(received).toBe(expected) // Object.is equality
+  53 |   });
+  54 | });
+  55 | 
+```

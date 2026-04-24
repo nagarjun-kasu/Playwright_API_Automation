@@ -1,0 +1,11 @@
+{
+    "firstname": "Nagarjuna",
+    "lastname": "Reddy",
+    "totalprice": 1000,
+    "depositpaid": true,
+    "bookingdates": {
+        "checkin": "2024-07-05",
+        "checkout": "2024-07-12"
+    },
+    "additionalneeds": "Laptop"
+}
